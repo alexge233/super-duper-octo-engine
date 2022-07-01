@@ -1,3 +1,4 @@
+import pytest
 from src.text_processing.highlight_text import (
     highlight_text,
     TextFragmentWithHighlights,
@@ -13,6 +14,7 @@ def test_empty_text():
 def test_text_with_empty_words():
     message = "This is a test message to test the message highlighter."
     result = highlight_text(message, [])
+
     assert result == TextWithHighlights([
         TextFragmentWithHighlights(message, is_highlighted=False)
     ])
@@ -48,4 +50,34 @@ def test_words_in_multiple_groups():
         TextFragmentWithHighlights("WORLD!", is_highlighted=False),
     ])
 
-# TODO: Add more tests to cover other untested scenarios
+
+def test_malformed_args():
+    with pytest.raises(TypeError):
+        highlight_text(None, [])
+
+    with pytest.raises(TypeError):
+        highlight_text(49, ['hello'])
+
+
+def test_multigroup_multiword():
+    message = "Hello World! Hello hello"
+    result  = highlight_text(message, ["hello"])
+
+    assert result == TextWithHighlights(fragments=[
+        TextFragmentWithHighlights(text="Hello", is_highlighted=True),
+        TextFragmentWithHighlights(text="World!", is_highlighted=False),
+        TextFragmentWithHighlights(text="Hello hello", is_highlighted=True)
+    ])
+
+
+def test_mixed_argtypes():
+    message = "Hello 49, what's your mission?"
+    result  = highlight_text(message, [49])
+
+    assert result == TextWithHighlights(fragments=[
+        TextFragmentWithHighlights(text="Hello", is_highlighted=False),
+        TextFragmentWithHighlights(text="49,", is_highlighted=False),
+        TextFragmentWithHighlights(text="what's", is_highlighted=False),
+        TextFragmentWithHighlights(text="your", is_highlighted=False),
+        TextFragmentWithHighlights(text="mission?", is_highlighted=False)
+    ])
