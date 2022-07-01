@@ -2,4 +2,4 @@ from src.version import version
 
 
 def test_versio():
-    assert version == "0.1.0"
+    assert version == "0.2.0"
